@@ -53,6 +53,21 @@ header.hero{display:flex;flex-direction:column;gap:6px;border-bottom:1px solid v
 
 .tree-frame{border:1px solid var(--stone-2);background:var(--stone);overflow-x:auto;-webkit-overflow-scrolling:touch}
 .tree-frame svg{display:block;min-width:980px;width:100%;height:auto}
+.mlist{display:none;margin-top:16px}
+.mlist .mhint{font-size:12px;color:var(--muted);margin:0 0 6px}
+.mrow{margin-top:18px}
+.mrow .eyebrow{margin:0 0 8px}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mnode{position:relative;display:flex;align-items:center;gap:10px;text-align:left;appearance:none;background:var(--node);border:1px solid var(--stone-2);padding:10px;font:inherit;color:var(--ink);cursor:pointer;min-height:64px}
+.mnode .medal{width:40px;height:40px}
+.mnode .mt{display:flex;flex-direction:column;min-width:0}
+.mnode b{font-size:13px;line-height:1.25;font-weight:700}
+.mnode small{font-size:11px;color:var(--muted);letter-spacing:.04em}
+.mnode .md{position:absolute;top:6px;right:6px;width:6px;height:6px;background:var(--brass)}
+.mnode.sel{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.mnode.sel small{color:var(--stone-2)}
+@media (max-width:700px){.tree-frame,.scroll-hint{display:none!important}.mlist{display:block}.legend span:not(:last-child){display:none}}
+@media (max-width:360px){.mgrid{grid-template-columns:1fr}}
 .scroll-hint{font-size:12px;color:var(--muted);margin-top:8px;display:none}
 @media (max-width:1000px){.scroll-hint{display:block}}
 
@@ -144,6 +159,7 @@ footer{font-size:12px;color:var(--muted);border-top:1px solid var(--stone-2);pad
       <span><svg width="10" height="10"><rect width="8" height="8" x="1" y="1" fill="#C9A84C"/></svg>Homes on our architectural map</span>
     </div>
     <p class="scroll-hint">Swipe sideways to see the whole tree.</p>
+    <div class="mlist" id="mlist"></div>
     <div class="detail" id="detail" aria-live="polite"></div>
   </section>
 
@@ -375,11 +391,23 @@ function draw(tree){
     n.g=g; n.t=nm;
   });
   fitAll();
+  buildList(tree);
   document.getElementById("t-eyebrow").textContent=tree.eyebrow;
   document.getElementById("t-main").textContent=tree.title;
   document.getElementById("t-note").textContent=tree.note;
   document.getElementById("frame").scrollLeft=0;
   select(tree.start);
+}
+function buildList(tree){
+  const box=document.getElementById("mlist"); if(!box) return;
+  let h='<p class="mhint">Tap a name to see who trained them and who they trained.</p>';
+  tree.rows.forEach((lab,r)=>{
+    const ns=Object.entries(tree.nodes).filter(([,n])=>n.r===r).sort((a,b)=>a[1].x-b[1].x);
+    if(!ns.length) return;
+    h+=`<div class="mrow"><p class="eyebrow">${lab}</p><div class="mgrid">`+ns.map(([id,n])=>`<button type="button" class="mnode" data-id="${id}"><span class="medal" aria-hidden="true"><svg viewBox="0 0 40 40"><use href="#ic-${id}"/></svg></span><span class="mt"><b>${n.name}</b><small>${n.yrs}</small></span>${n.map?'<i class="md" aria-hidden="true"></i>':''}</button>`).join("")+`</div></div>`;
+  });
+  box.innerHTML=h;
+  box.querySelectorAll(".mnode").forEach(b=>b.addEventListener("click",()=>{select(b.dataset.id);try{document.getElementById("detail").scrollIntoView({behavior:"smooth",block:"start"});}catch(e){}}));
 }
 function fitAll(){ if(T) Object.values(T.nodes).forEach(n=>n.t&&fitName(n.t)); }
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fitAll);
@@ -387,10 +415,11 @@ if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fitAll);
 function select(id){
   if(selected) T.nodes[selected].g.classList.remove("sel");
   selected=id; const n=T.nodes[id]; n.g.classList.add("sel");
+  document.querySelectorAll(".mnode").forEach(b=>b.classList.toggle("sel",b.dataset.id===id));
   const up=T.edges.filter(e=>e[1]===id).map(([a,,t,l])=>`${T.nodes[a].name} (${l||rel[t]})`).join("; ");
   const down=T.edges.filter(e=>e[0]===id).map(([,b])=>T.nodes[b].name).join(", ");
   const url=ARCHITECT_PAGES[id];
-  document.getElementById("detail").innerHTML=`<div class="who"><div class="who-row"><span class="medal" aria-hidden="true"><svg viewBox="0 0 40 40"><use href="#ic-${id}"/></svg></span><span class="yrs">${n.yrs}</span></div><h3 style="font-size:30px">${url?`<a href="${url}" target="_top">${n.name}</a>`:n.name}</h3>
+  document.getElementById("detail").innerHTML=`<div class="who"><div class="who-row"><span class="medal" aria-hidden="true"><svg viewBox="0 0 40 40"><use href="#ic-${id}"/></svg></span><span class="yrs">${n.yrs}</span></div><h3 style="font-size:24px">${url?`<a href="${url}" target="_top">${n.name}</a>`:n.name}</h3>
     ${n.map?`<span class="onmap"><i></i>Homes on our map</span>`:""}
     ${id in ARCHITECT_PAGES?`<span class="pagelink">${url?`<a href="${url}" target="_top">Architect page</a>`:"Architect page: link to come"}</span>`:""}</div>
     <ul>${up?`<li><b>Came from</b><span>${up}</span></li>`:""}${n.notes.map(([k,v])=>`<li><b>${k}</b><span>${v}</span></li>`).join("")}${down?`<li><b>Passed it to</b><span>${down}</span></li>`:""}</ul>`;
