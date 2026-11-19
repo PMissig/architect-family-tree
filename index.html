@@ -10,14 +10,14 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Lato:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap">
 <style>
 /* Layout: one editorial column; the tree sits in a wide drawing frame, other roots in a two-column grid, fact-check as stacked rows. */
 :root{
   --paper:#FFFFFF; --ink:#17140F; --stone:#F1ECE3; --stone-2:#DCD3C5; --muted:#6B6256;
   --brass:#C9A84C; --brass-ink:#8C7128; --line:#2B261F; --line-soft:#9A8F80;
   --node:#FFFFFF; --node-edge:#CFC5B5; --sel:#17140F; --sel-fg:#FBF9F5;
-  --serif:"Cormorant Garamond", "Cormorant", Georgia, "Times New Roman", serif;
+  --serif:"Lato", "Helvetica Neue", Arial, sans-serif;
   --sans:"Lato", "Helvetica Neue", Arial, sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
@@ -37,8 +37,8 @@ html{background:transparent}
 a{color:inherit;text-decoration-color:var(--brass);text-underline-offset:3px}
 .eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:700}
 h1{font-family:var(--serif);font-weight:500;font-size:clamp(38px,6vw,64px);line-height:1.02;margin:10px 0 0;text-wrap:balance;letter-spacing:-.01em}
-h2{font-family:var(--serif);font-weight:500;font-size:clamp(28px,3.6vw,38px);line-height:1.1;margin:6px 0 0;text-wrap:balance}
-h3{font-family:var(--serif);font-weight:600;font-size:22px;margin:0;line-height:1.2}
+h2{font-family:var(--serif);font-weight:300;font-size:clamp(24px,3vw,32px);line-height:1.15;letter-spacing:.01em;margin:6px 0 0;text-wrap:balance}
+h3{font-family:var(--serif);font-weight:700;font-size:18px;margin:0;line-height:1.2}
 p{margin:0}
 .lede{max-width:62ch;color:var(--muted);font-size:16px;margin-top:16px}
 .rule{height:1px;background:var(--stone-2);border:0;margin:0}
@@ -64,7 +64,7 @@ header.hero{display:flex;flex-direction:column;gap:6px;border-bottom:1px solid v
 .node.sel rect{fill:var(--sel);stroke:var(--sel)}
 .node.sel .nm, .node.sel .yr{fill:var(--sel-fg)}
 .node.root rect{fill:transparent;stroke-dasharray:3 3}
-.nm{font-family:var(--serif);font-size:17px;font-weight:600;fill:var(--ink)}
+.nm{font-family:var(--serif);font-size:13px;font-weight:700;fill:var(--ink)}
 .yr{font-family:var(--sans);font-size:10.5px;letter-spacing:.08em;fill:var(--muted)}
 .mapdot{fill:var(--brass)}
 .ln{fill:none;stroke:var(--line);stroke-width:1.3}
@@ -94,7 +94,7 @@ header.hero{display:flex;flex-direction:column;gap:6px;border-bottom:1px solid v
 .chain li::after{content:"";position:absolute;left:8.5px;top:19px;bottom:-1px;border-left:1.3px solid var(--line)}
 .chain li.inf::after{border-left:1.3px dashed var(--line-soft)}
 .chain li:last-child::after{display:none}
-.chain .n{font-family:var(--serif);font-size:19px;font-weight:600;line-height:1.2}
+.chain .n{font-family:var(--serif);font-size:16px;font-weight:700;line-height:1.2}
 .chain .n small{font-family:var(--sans);font-size:11px;letter-spacing:.08em;color:var(--muted);font-weight:400;margin-left:6px}
 .chain .r{font-size:13px;color:var(--muted)}
 
@@ -368,7 +368,6 @@ function draw(tree){
     const ic=el("svg",{x:W/2-MR+1,y:-MR+1,width:2*MR-2,height:2*MR-2,"aria-hidden":"true"},cg);
     el("use",{href:"#ic-"+id,width:"100%",height:"100%"},ic);
     const nm=el("text",{x:W/2,y:38,"text-anchor":"middle",class:"nm"},g);nm.textContent=n.name;
-    if(n.name.length>20)nm.setAttribute("font-size","14");else if(n.name.length>16)nm.setAttribute("font-size","15.5");
     const yr=el("text",{x:W/2,y:55,"text-anchor":"middle",class:"yr"},g);yr.textContent=n.yrs;
     if(n.map) el("rect",{x:W-11,y:6,width:6,height:6,class:"mapdot"},g);
     g.addEventListener("click",()=>select(id));
